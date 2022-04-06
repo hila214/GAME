@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 
+
 pygame.init()
 
 SCREEN_WIDTH = 1000
@@ -9,33 +10,38 @@ SCREEN_HEIGHT = 1000
 screen= pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Tile based')
 
-SIZE_SQUARE = 200
+# define game variables
+tile_size = 50
 
+# load images
 backround = pygame.image.load("backround.png")
 img1_sun = pygame.image.load("imgsun.png")
 
 def draw_Map():
-    for line in range(0, 6):
-        pygame.draw.line(screen, (255, 255, 255), (0, line * SIZE_SQUARE), (SCREEN_WIDTH, line * SIZE_SQUARE))
-        pygame.draw.line(screen, (255, 255, 255), (line * SIZE_SQUARE, 0), (line * SIZE_SQUARE, SCREEN_HEIGHT))
+    for line in range(0, 20):
+        pygame.draw.line(screen, (255, 255, 255), (0, line * tile_size), (SCREEN_WIDTH, line * tile_size))
+        pygame.draw.line(screen, (255, 255, 255), (line * tile_size, 0), (line * tile_size, SCREEN_HEIGHT))
+        
 
 class Game():
    def __init__(self, data):
-       Sand =pygame.image.load("sand_cube.png")
-
-       for line in data:
-           for SQUARE in line:
-               if SQUARE ==1 :
-                   img2 = pygame.transform.scale(Sand, (SIZE_SQUARE, SIZE_SQUARE))
-
-THE_GAME_WORLD = [
-[1, 1, 1, 1, 1],
-[1, 0, 0, 0, 1],
-[1, 0, 0, 0, 1],
-[1, 0, 0, 0, 1],
-[1, 1, 1, 1, 1],
-]
-
+       self.tile_list = []
+       
+    #    load images
+       sand_cube_img = pygame.image.load("sand_cube.png")
+       grass_img = pygame.image.load("grass.png")
+       
+       Number_of_row = 0
+       for row in data:
+           number_of_col = 0
+           for tile in row:
+               if tile == 1:
+                   img = pygame.transform.scale(sand_cube_img, (tile_size, tile_size))
+                   img_rect = img.get_rect()
+                   img_rect.x = number_of_col * tile_size
+                   img_rect.y = Number_of_row * tile_size
+                   tile = (img, img_rect)
+                   self.tile_list.append(tile)
 
 
 
