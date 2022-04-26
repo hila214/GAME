@@ -4,14 +4,14 @@ from pygame.locals import *
 
 pygame.init()
 
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 1000
+SCREEN_WIDTH = 500
+SCREEN_HEIGHT = 500
 
 screen= pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Tile based')
 
 # define game variables
-tile_size = 50
+tile_size = 25
 
 # load images
 backround = pygame.image.load("backround.png")
@@ -22,6 +22,10 @@ def draw_Map():
         pygame.draw.line(screen, (255, 255, 255), (0, line * tile_size), (SCREEN_WIDTH, line * tile_size))
         pygame.draw.line(screen, (255, 255, 255), (line * tile_size, 0), (line * tile_size, SCREEN_HEIGHT))
         
+
+class player():
+    def __init__(self, x, y):
+        img2_guy = pygame.image.load(player.png)
 
 class World():
    def __init__(self, data):
@@ -59,6 +63,7 @@ class World():
         for tile in self.tile_list:
             screen.blit(tile[0], tile[1])
 
+
 world_data = [
 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
@@ -88,7 +93,7 @@ run = True
 while run:
 
     screen.blit(backround , (0,0))
-    screen.blit(img1_sun , (100,80))
+    screen.blit(img1_sun , (60,60))
 
     draw_Map()
     world.draw()
