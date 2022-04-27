@@ -17,16 +17,46 @@ tile_size = 25
 backround = pygame.image.load("backround.png")
 img1_sun = pygame.image.load("imgsun.png")
 
-def draw_Map():
-    for line in range(0, 20):
-        pygame.draw.line(screen, (255, 255, 255), (0, line * tile_size), (SCREEN_WIDTH, line * tile_size))
-        pygame.draw.line(screen, (255, 255, 255), (line * tile_size, 0), (line * tile_size, SCREEN_HEIGHT))
-        
+
 
 class player():
     def __init__(self, x, y):
-        img2_guy = pygame.image.load(player.png)
-
+        img2_guy = pygame.image.load("player.png")
+        self.image = pygame.transform.scale(img2_guy,(20,60))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.vel_y = 0
+        
+    def update(self):
+        dx = 0 
+        dy = 0
+        
+        # get keypresses
+        key = pygame.key.get_pressed()
+        if key[pygame.K_SPACE]:
+            dy = -5
+            self.vel_y +=5
+        if key[pygame.K_LEFT]:
+            dx -=5
+        if key[pygame.K_RIGHT]:
+            dx +=5
+        
+        # add gravity
+        if self.vel_y >0: 
+            self.vel_y -= 1
+            dy += 1
+        # check for collision 
+        
+        # update player coordinates
+        self.rect.x += dx
+        self.rect.y += dy
+        
+        # # the player onto screen
+        screen.blit(self.image,self.rect)
+        
+        
+    
 class World():
    def __init__(self, data):
        self.tile_list = []
@@ -87,6 +117,8 @@ world_data = [
 [1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
+
+player = player(50, SCREEN_HEIGHT -80)
 world = World(world_data)
 
 run = True
@@ -95,7 +127,7 @@ while run:
     screen.blit(backround , (0,0))
     screen.blit(img1_sun , (60,60))
 
-    draw_Map()
+    player.update()
     world.draw()
     
 
