@@ -20,13 +20,14 @@ img1_sun = pygame.image.load("imgsun.png")
 
 
 class player():
-    def __init__(self, x, y):
+    def __init__(self, x, y, data):
         img2_guy = pygame.image.load("player.png")
         self.image = pygame.transform.scale(img2_guy,(20,60))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.vel_y = 0
+        self.data = data
         
     def update(self):
         dx = 0 
@@ -39,11 +40,11 @@ class player():
             self.vel_y +=5
         if key[pygame.K_LEFT]:
             dx -=5
-        if key[pygame.K_RIGHT]:
+        if key[pygame.K_RIGHT]: 
             dx +=5
-        
+        print(self.data[int(self.rect.y/500*20+2+1)][int(self.rect.x/500*20)])
         # add gravity
-        if self.vel_y >0: 
+        if self.vel_y >0 and self.data[int(self.rect.y/500*20+2+1)][int(self.rect.x/500*20)]==0: 
             self.vel_y -= 1
             dy += 1
         # check for collision 
@@ -117,8 +118,10 @@ world_data = [
 [1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
+# print(len(world_data[0]))
+# quit()
 
-player = player(50, SCREEN_HEIGHT -80)
+player = player(50, SCREEN_HEIGHT -80, world_data)
 world = World(world_data)
 
 run = True
@@ -129,12 +132,15 @@ while run:
 
     player.update()
     world.draw()
-    
+    print(player.rect.x)
+    print(player.rect.x /500*20//1)
+    print(player.rect.y /500*20//1+2)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
 
+    
     pygame.display.update()
 
 pygame.quit()
