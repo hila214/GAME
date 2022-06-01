@@ -1,3 +1,4 @@
+from pickle import FALSE
 import pygame
 from pygame.locals import *
 import cv2
@@ -29,42 +30,43 @@ img1_sun = pygame.image.load("imgsun.png")
 restart_img = pygame.image.load("restart_game.png")
 
 
+
+# image for its will be button that restart the game
 class Button():
-    def __init__(self, x, y, image):
+    def __init__(self, x, y,image):
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-    def draw(self):
-        # draw button
-        screen.bilt(self.image, self.rect)
+        self.clicked = False
 
+
+    def draw(self):
+        action = False
+
+        # get mouse place
+        pos = pygame.mouse.get_pos()
+
+        #check mouseover and clicked conditions
+        if self.rect.collidepoint(pos):
+           if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
+               action = True
+               self.clicked = True
+
+           if pygame.mouse.get_pressed()[0] == 0:
+               self.clicked = False
+
+        # draw button
+        screen.blit(self.image , self.rect)
+
+        return action
         
     
 
 
 class player():
     def __init__(self, x, y):
-        self.images_right = []
-        self.images_left = []
-        self.index = 0
-        self.counter = 0
-        for num in range(1 ,5):
-            img_right = pygame.image.load(f'img.guy{num}.png')
-            img_right = pygame.transform.scale(img_right,(20,60))
-            img_left = pygame.transform.flip(img_right, True, False)
-            self.images_right.append(img_right)
-            self.images_left.append(img_left)
-        self.dead_image = pygame.image.load("ghost.png")
-        self.image = self.images_right[self.index]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.width = self.image.get_width()
-        self.height = self.image.get_height()
-        self.vel_y = 0
-        self.jumped = False
-        self.direction = 0
+        self.reset(x , y)
         
     def update(self, game_over):
         dx = 0 
@@ -93,7 +95,7 @@ class player():
                 
                 
             
-        cv2.imshow('frame', frame)
+        #cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             return
         
@@ -101,7 +103,7 @@ class player():
         if game_over == 0:
             #get keypresses
             key = pygame.key.get_pressed()
-            if (key[pygame.K_SPACE] or hand_up) and self.jumped == False:
+            if (key[pygame.K_SPACE] or hand_up) and self.jumped == False and self.in_air == False:
                 self.vel_y = -15
                 self.jumped = True
             if key[pygame.K_SPACE] == False:
@@ -141,6 +143,7 @@ class player():
                 self.vel_y = 10
             dy += self.vel_y
 
+            self.in_air = True
             #check for collision
             for tile in world.tile_list:
                 #check for collision in x direction
@@ -156,6 +159,8 @@ class player():
                     elif self.vel_y >= 0:
                         dy = tile[1].top - self.rect.bottom
                         self.vel_y = 0
+                        self.in_air = False
+
 
 
             #check for collision with enemies
@@ -181,6 +186,30 @@ class player():
         pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
         
         return game_over
+
+    def reset(self, x, y):
+        self.images_right = []
+        self.images_left = []
+        self.index = 0
+        self.counter = 0
+        for num in range(1, 5):
+            img_right = pygame.image.load(f'img.guy{num}.png')
+            img_right = pygame.transform.scale(img_right, (20, 60))
+            img_left = pygame.transform.flip(img_right, True, False)
+            self.images_right.append(img_right)
+            self.images_left.append(img_left)
+        self.dead_image = pygame.image.load('ghost.png')
+        self.image = self.images_right[self.index]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+        self.vel_y = 0
+        self.jumped = False
+        self.direction = 0
+        self.in_air = True
+
 
         
         
@@ -293,7 +322,7 @@ Lava_group = pygame.sprite.Group()
 world = World(world_data)
 
 #create buttons
-restart_button = Button(SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2 + 100, restart_img)
+restart_button = Button(SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2 + 100 , restart_img)
 
 
 run = True
@@ -320,7 +349,9 @@ while run:
     
     #if player has died
     if game_over == -1:
-        restart_button.draw()
+      if  restart_button.draw():
+          player.reset(100, SCREEN_HEIGHT -130)
+          game_over = 0 
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
