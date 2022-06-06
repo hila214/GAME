@@ -23,11 +23,15 @@ pygame.display.set_caption('Tile based')
 # define game variables
 tile_size = 25
 game_over = 0
+main_menu = True
 
 # load images
 backround = pygame.image.load("backround.png")
 img1_sun = pygame.image.load("imgsun.png")
 restart_img = pygame.image.load("restart_game.png")
+start_img = pygame.image.load("start.png")
+exit_img = pygame.image.load("exit.png")
+
 
 
 
@@ -316,13 +320,15 @@ world_data = [
 ]
 
 
-player = player(100, SCREEN_HEIGHT -130)
+player = player(60, SCREEN_HEIGHT -130)
 monster_group = pygame.sprite.Group()
 Lava_group = pygame.sprite.Group()
 world = World(world_data)
 
 #create buttons
 restart_button = Button(SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2 + 100 , restart_img)
+start_button = Button(SCREEN_WIDTH // 2 - 190, SCREEN_HEIGHT // 2, start_img)
+exit_button = Button(SCREEN_WIDTH // 2 + 80, SCREEN_HEIGHT // 2, exit_img)
 
 
 run = True
@@ -336,22 +342,29 @@ while run:
 
     screen.blit(backround , (0,0))
     screen.blit(img1_sun , (60,60))
-    
-    world.draw()
-    
-    if game_over == 0:
-      monster_group.update()
-    
-    monster_group.draw(screen)
-    Lava_group.draw(screen)
-    
-    game_over = player.update(game_over)
-    
-    #if player has died
-    if game_over == -1:
-      if  restart_button.draw():
-          player.reset(100, SCREEN_HEIGHT -130)
-          game_over = 0 
+
+    if main_menu == True:
+      if exit_button.draw():
+          run = False
+      if start_button.draw():
+          main_menu = False
+
+    else:
+        world.draw()
+        
+        if game_over == 0:
+         monster_group.update()
+        
+        monster_group.draw(screen)
+        Lava_group.draw(screen)
+        
+        game_over = player.update(game_over)
+        
+        #if player has died
+        if game_over == -1:
+         if  restart_button.draw():
+            player.reset(100, SCREEN_HEIGHT -130)
+            game_over = 0 
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
