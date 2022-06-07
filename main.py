@@ -14,16 +14,23 @@ pygame.init()
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 500
 clock = pygame.time.Clock()
-fps = 60
+fps = 50
 
 
 screen= pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Tile based')
 
+# define font
+font_score = pygame.font.SysFont('Bauhaus 93' , 30)
+
 # define game variables
 tile_size = 25
 game_over = 0
 main_menu = True
+score = 0
+
+# define colors
+black = (0, 0, 0)
 
 # load images
 backround = pygame.image.load("backround.png")
@@ -31,6 +38,11 @@ img1_sun = pygame.image.load("imgsun.png")
 restart_img = pygame.image.load("restart_game.png")
 start_img = pygame.image.load("start.png")
 exit_img = pygame.image.load("exit.png")
+
+
+def draw_text(text, font, text_color, x, y):
+    img = font.render(text, True, text_color)
+    screen.blit(img, (x, y))
 
 
 
@@ -99,7 +111,7 @@ class player():
                 
                 
             
-        #cv2.imshow('frame', frame)
+        cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             return
         
@@ -251,6 +263,10 @@ class World():
                if tile == 6:
                     lava = Lava(number_of_col * tile_size, Number_of_row * tile_size + (tile_size// 2))
                     Lava_group.add(lava)
+               if tile == 7:
+                   coin = Coin(number_of_col * tile_size + (tile_size // 2), Number_of_row * tile_size + (tile_size// 2))
+                   Coin_group.add(coin)
+
 
                number_of_col += 1
            Number_of_row +=1
@@ -291,6 +307,13 @@ class Lava(pygame.sprite.Sprite):
         self.rect.y = y
 
 
+class Coin(pygame.sprite.Sprite):
+   def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        lava_img = pygame.image.load("coin.png")
+        self.image = pygame.transform.scale(lava_img, (tile_size  // 2, tile_size // 2))
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
 
 
     
@@ -321,8 +344,11 @@ world_data = [
 
 
 player = player(60, SCREEN_HEIGHT -130)
+
 monster_group = pygame.sprite.Group()
 Lava_group = pygame.sprite.Group()
+Coin_group = pygame.sprite.Group()
+
 world = World(world_data)
 
 #create buttons
@@ -354,9 +380,16 @@ while run:
         
         if game_over == 0:
          monster_group.update()
+        # update score
+        # check if a coin has been collected
+        if pygame.sprite.spritecollide(player, Coin_group, True):
+            score += 1
+        draw_text('SCORE: X' + str(score), font_score, black, tile_size - 10, 10)
+
         
         monster_group.draw(screen)
         Lava_group.draw(screen)
+        Coin_group.draw(screen)
         
         game_over = player.update(game_over)
         
@@ -365,6 +398,7 @@ while run:
          if  restart_button.draw():
             player.reset(100, SCREEN_HEIGHT -130)
             game_over = 0 
+            score = 0
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
