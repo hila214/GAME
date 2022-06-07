@@ -1,3 +1,4 @@
+from math import fabs
 from pickle import FALSE
 import pygame
 from pygame.locals import *
@@ -39,6 +40,21 @@ restart_img = pygame.image.load("restart_game.png")
 start_img = pygame.image.load("start.png")
 exit_img = pygame.image.load("exit.png")
 
+def isFinger(frame):
+
+    RGB_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    results = hands.process(RGB_image)
+    multiLandMarks = results.multi_hand_landmarks
+    if multiLandMarks:
+            # for handLms in multiLandMarks:
+                # mpDraw.draw_landmarks(frame, handLms, mp_Hands.HAND_CONNECTIONS)
+        # index_finger_x = multiLandMarks[0].landmark[8].x
+        index_finger_y = multiLandMarks[0].landmark[8].y
+        index_finger_5 = multiLandMarks[0].landmark[5].y
+
+        return index_finger_y > index_finger_5
+
+    return True
 
 def draw_text(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
@@ -92,22 +108,14 @@ class player():
 
         ret, frame = vid.read()
         index_finger_x = 0
-        RGB_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = hands.process(RGB_image)
-        multiLandMarks = results.multi_hand_landmarks
-        if multiLandMarks:
-            for handLms in multiLandMarks:
-                mpDraw.draw_landmarks(frame, handLms, mp_Hands.HAND_CONNECTIONS)
-            index_finger_x = multiLandMarks[0].landmark[8].x
-            index_finger_y = multiLandMarks[0].landmark[8].y
-            index_finger_5 = multiLandMarks[0].landmark[5].y
+        
 
-            if index_finger_y > index_finger_5:
-                print("down")
+        if  isFinger(frame) :  
+            print("down")
 
-            else:
-                hand_up = True
-                print("up")
+        else:
+            hand_up = True
+            print("up")
                 
                 
             
@@ -370,7 +378,7 @@ while run:
     screen.blit(img1_sun , (60,60))
 
     if main_menu == True:
-      if exit_button.draw():
+      if exit_button.draw() or  isFinger(frame)==False:
           run = False
       if start_button.draw():
           main_menu = False
